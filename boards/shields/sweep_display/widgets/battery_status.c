@@ -185,11 +185,13 @@ peripheral_battery_status_get_state(const zmk_event_t *eh) {
   const struct zmk_peripheral_battery_state_changed *ev =
       as_zmk_peripheral_battery_state_changed(eh);
 
+  // ZMK reports level 0 when a peripheral disconnects; hide it instead of
+  // showing 0% until the next real reading arrives.
   return (struct battery_status_state){
       .is_peripheral = true,
       .source = ev->source,
       .level = ev->state_of_charge,
-      .valid = true,
+      .valid = ev->state_of_charge > 0,
   };
 }
 
